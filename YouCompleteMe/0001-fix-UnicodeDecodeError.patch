@@ -1,0 +1,43 @@
+From d5f64d57e01475f3fc9b8996ac19d2b2b7a7b49c Mon Sep 17 00:00:00 2001
+From: zhmars <gzhqyz@gmail.com>
+Date: Thu, 28 May 2020 22:20:47 +0800
+Subject: [PATCH] fix UnicodeDecodeError
+
+---
+ python/ycm/vimsupport.py | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
+
+diff --git a/python/ycm/vimsupport.py b/python/ycm/vimsupport.py
+index f25ef02..e5e4400 100644
+--- a/python/ycm/vimsupport.py
++++ b/python/ycm/vimsupport.py
+@@ -269,11 +269,21 @@ class DiagnosticMatch( namedtuple( 'DiagnosticMatch',
+ 
+ 
+ def GetDiagnosticMatchesInCurrentWindow():
+-  vim_matches = vim.eval( 'getmatches()' )
+-  return [ DiagnosticMatch( match[ 'id' ],
+-                            match[ 'group' ],
+-                            match[ 'pattern' ] )
+-           for match in vim_matches if match[ 'group' ].startswith( 'Ycm' ) ]
++  if hasattr(vim, 'bindeval'):
++    vim_matches = vim.bindeval( 'getmatches()' )
++    vim_encoding = vim.eval('&encoding')
++    if not isinstance(vim_matches, (vim.Dictionary, vim.List)):
++      vim_matches = vim_matches.decode(vim_encoding, 'replace')
++    return [ DiagnosticMatch( match[ 'id' ].decode(vim_encoding),
++                              match[ 'group' ].decode(vim_encoding),
++                              match[ 'pattern' ].decode(vim_encoding) )
++            for match in vim_matches if match[ 'group' ].decode(vim_encoding).startswith( 'Ycm' ) ]
++  else:
++    vim_matches = vim.eval( 'getmatches()' )
++    return [ DiagnosticMatch( match[ 'id' ],
++                                match[ 'group' ],
++                                match[ 'pattern' ] )
++            for match in vim_matches if match[ 'group' ].startswith( 'Ycm' ) ]
+ 
+ 
+ def AddDiagnosticMatch( match ):
+-- 
+2.26.2
+

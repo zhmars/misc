@@ -1,0 +1,128 @@
+From 269c4855e57e34dc510f5d62284044e5ded8e73e Mon Sep 17 00:00:00 2001
+From: zhmars <gzhqyz@gmail.com>
+Date: Wed, 27 May 2020 17:53:17 +0800
+Subject: [PATCH] add neosnippet support
+
+---
+ python/ycm/youcompleteme.py                   | 15 ++++++
+ .../general/general_completer_store.py        |  5 ++
+ .../general/neosnippet_completer.py           | 49 +++++++++++++++++++
+ 3 files changed, 69 insertions(+)
+ create mode 100644 third_party/ycmd/ycmd/completers/general/neosnippet_completer.py
+
+diff --git a/python/ycm/youcompleteme.py b/python/ycm/youcompleteme.py
+index 4938a0b..7a0de08 100644
+--- a/python/ycm/youcompleteme.py
++++ b/python/ycm/youcompleteme.py
+@@ -570,6 +570,7 @@ class YouCompleteMe:
+ 
+     extra_data = {}
+     self._AddUltiSnipsDataIfNeeded( extra_data )
++    self._AddNeoSnippetDataIfNeeded( extra_data )
+     SendEventNotificationAsync( 'BufferVisit', extra_data = extra_data )
+ 
+ 
+@@ -851,3 +852,17 @@ class YouCompleteMe:
+         'description': snippet[ 'description' ] }
+       for trigger, snippet in snippets.items()
+     ]
++
++
++  def _AddNeoSnippetDataIfNeeded( self, extra_data ):
++    # from path/to/neosnippet/autoload/neosnippet/helpers.vim
++    try:
++        snippets = vim.eval('neosnippet#helpers#get_snippets()')
++        #  snippets = vim.eval('neosnippet#helpers#get_completion_snippets()')
++        extra_data[ 'neosnippet_snippets' ] = [
++        { 'trigger': trigger,
++            'description': snippet['menu_abbr'] }
++        for trigger, snippet in snippets.items()
++        ]
++    except vim.error:
++        return
+diff --git a/third_party/ycmd/ycmd/completers/general/general_completer_store.py b/third_party/ycmd/ycmd/completers/general/general_completer_store.py
+index f6cf869..4a28a3c 100644
+--- a/third_party/ycmd/ycmd/completers/general/general_completer_store.py
++++ b/third_party/ycmd/ycmd/completers/general/general_completer_store.py
+@@ -19,6 +19,7 @@ from ycmd.completers.completer import Completer
+ from ycmd.completers.all.identifier_completer import IdentifierCompleter
+ from ycmd.completers.general.filename_completer import FilenameCompleter
+ from ycmd.completers.general.ultisnips_completer import UltiSnipsCompleter
++from ycmd.completers.general.neosnippet_completer import NeoSnippetCompleter
+ 
+ 
+ class GeneralCompleterStore( Completer ):
+@@ -34,11 +35,15 @@ class GeneralCompleterStore( Completer ):
+     self._identifier_completer = IdentifierCompleter( user_options )
+     self._filename_completer = FilenameCompleter( user_options )
+     self._ultisnips_completer = UltiSnipsCompleter( user_options )
++    self._neosnippet_completer = NeoSnippetCompleter( user_options )
+     self._non_filename_completers = [ self._identifier_completer ]
+     if user_options.get( 'use_ultisnips_completer', True ):
+       self._non_filename_completers.append( self._ultisnips_completer )
++    if user_options.get( 'use_neosnippet_completer', True ):
++      self._non_filename_completers.append( self._neosnippet_completer )
+     self._all_completers = [ self._identifier_completer,
+                              self._filename_completer,
++                             self._neosnippet_completer,
+                              self._ultisnips_completer ]
+ 
+ 
+diff --git a/third_party/ycmd/ycmd/completers/general/neosnippet_completer.py b/third_party/ycmd/ycmd/completers/general/neosnippet_completer.py
+new file mode 100644
+index 0000000..d0b1068
+--- /dev/null
++++ b/third_party/ycmd/ycmd/completers/general/neosnippet_completer.py
+@@ -0,0 +1,49 @@
++# Copyright (C) 2020 ycmd contributors
++#
++# This file is part of ycmd.
++#
++# ycmd is free software: you can redistribute it and/or modify
++# it under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# ycmd is distributed in the hope that it will be useful,
++# but WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++# GNU General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with ycmd.  If not, see <http://www.gnu.org/licenses/>.
++
++from ycmd.completers.general_completer import GeneralCompleter
++from ycmd import responses
++
++
++class NeoSnippetCompleter( GeneralCompleter ):
++  """
++  General completer that provides Neosnippet snippet names in completions.
++  """
++
++  def __init__( self, user_options ):
++    super().__init__( user_options )
++    self._candidates = None
++    self._filtered_candidates = None
++
++
++  def ShouldUseNow( self, request_data ):
++    return self.QueryLengthAboveMinThreshold( request_data )
++
++
++  def ComputeCandidates( self, request_data ):
++    if not self.ShouldUseNow( request_data ):
++      return []
++    return self.FilterAndSortCandidates(
++      self._candidates, request_data[ 'query' ] )
++
++
++  def OnBufferVisit( self, request_data ):
++    raw_candidates = request_data.get( 'neosnippet_snippets', [] )
++    self._candidates = [
++      responses.BuildCompletionData( snip[ 'trigger' ],
++                                     '<snip> ' + snip[ 'description' ] )
++      for snip in raw_candidates ]
+-- 
+2.26.2
+
