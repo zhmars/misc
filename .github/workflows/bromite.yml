@@ -1,0 +1,117 @@
+---
+name: bromite
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 5'
+
+env:
+  TAG: bromite
+  ARTIFACT_DIR: artifacts
+  RULESET_CONVERTER_URL: https://github.com/bromite/filters/releases/download/78.0.3904.130/ruleset_converter
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Download dependencies
+        shell: bash
+        run: |
+          filters=(
+            # 'https://easylist-downloads.adblockplus.org/easylist.txt'
+            'https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjxlist.txt'
+            'https://easylist-downloads.adblockplus.org/easylistchina.txt'
+            'https://easylist-downloads.adblockplus.org/easyprivacy.txt'
+            'https://raw.githubusercontent.com/cjx82630/cjxlist/master/cjx-annoyance.txt'
+            # 'https://easylist-downloads.adblockplus.org/fanboy-social.txt'
+            'https://easylist-downloads.adblockplus.org/antiadblockfilters.txt'
+            'https://easylist-downloads.adblockplus.org/abp-filters-anti-cv.txt'
+            'xinggsf-mv.txt::https://gitee.com/xinggsf/Adblock-Rule/raw/master/mv.txt'
+          )
+
+          exclude_rules=(
+            '^||youaima.com/zz/'
+          )
+
+          for filter in "${filters[@]}"; do
+            url="${filter##*::}"
+            src="${filter%%::*}"
+            src="${src##*/}"
+            srcs+=($src)
+
+            if [[ ! -f ${src} ]]; then
+              curl -f -L "${url}" -o "${src}"
+            fi
+
+            for rule in "${exclude_rules[@]}"; do
+              sed -i "\!${rule}!d" "${src}"
+            done
+          done
+
+          mkdir -p ${ARTIFACT_DIR}
+          curl -f -L ${RULESET_CONVERTER_URL} -o ruleset_converter || exit 1
+          chmod u+x ruleset_converter
+          ./ruleset_converter --input_format=filter-list --output_format=unindexed-ruleset \
+            --input_files="$(IFS=, ; echo "${srcs[*]}")" \
+            --output_file=${ARTIFACT_DIR}/filters.dat 2> /dev/null
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_DIR }}
+          path: ./${{ env.ARTIFACT_DIR }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: Initalize
+        shell: bash
+        run: |
+          git config --global core.autocrlf input
+
+      - uses: actions/checkout@master
+      - name: Checkout
+        shell: bash
+        run: |
+          git config --global user.name 'CI'
+          git config --global user.email 'zhmars@users.noreply.github.com'
+          git tag --force ${{ env.TAG }}
+          git push origin --delete ${{ env.TAG }} || true
+          git push origin HEAD --tags
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_DIR }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ env.TAG }}
+          body: |
+            Bromite Custom Ad Block filters (see https://www.bromite.org/custom-filters)
+
+            Credits
+
+            - ~~[EasyList](https://easylist.to/#easylist)~~
+            - [EasyList Lite](https://github.com/cjx82630/cjxlist)
+            - [Easylist China](https://easylist.to/pages/other-supplementary-filter-lists-and-easylist-variants.html#easylist-china)
+            - [EasyPrivacy](https://easylist.to/#easyprivacy)
+            - [CJX's Annoyance List](https://github.com/cjx82630/cjxlist)
+            - [Adblock Warning Removal List](https://easylist.to/pages/other-supplementary-filter-lists-and-easylist-variants.html#adblock-warning-removal-list)
+            - [ABP anti-circumvention filter list](https://github.com/abp-filters/abp-filters-anti-cv)
+            - [乘风视频广告过滤规则](https://gitee.com/xinggsf/Adblock-Rule)
+
+          draft: false
+          prerelease: false
+          # https://github.com/softprops/action-gh-release/issues/54
+          fail_on_unmatched_files: true
+          files: |
+            ./filters.dat
