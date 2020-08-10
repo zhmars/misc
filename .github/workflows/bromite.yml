@@ -94,10 +94,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          name: Bromite Custom Ad Block filters
           tag_name: ${{ env.TAG }}
           body: |
-            Bromite Custom Ad Block filters (see https://www.bromite.org/custom-filters)
-
             Credits
 
             - ~~[EasyList](https://easylist.to/#easylist)~~
@@ -107,7 +106,7 @@ jobs:
             - [CJX's Annoyance List](https://github.com/cjx82630/cjxlist)
             - [Adblock Warning Removal List](https://easylist.to/pages/other-supplementary-filter-lists-and-easylist-variants.html#adblock-warning-removal-list)
             - [ABP anti-circumvention filter list](https://github.com/abp-filters/abp-filters-anti-cv)
-            - [乘风视频广告过滤规则](https://gitee.com/xinggsf/Adblock-Rule)
+            - [乘风常用视频站点过滤规则](https://gitee.com/xinggsf/Adblock-Rule)
 
           draft: false
           prerelease: false
