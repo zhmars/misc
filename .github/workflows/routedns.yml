@@ -1,0 +1,84 @@
+---
+name: routedns
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: '0 0 * * 5'
+
+env:
+  TAG: routedns
+  ARTIFACT_DIR: artifacts
+  DOMAINLIST_REPO: https://github.com/felixonmars/dnsmasq-china-list
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+
+      - name: Download dependencies
+        shell: bash
+        run: |
+          git clone --depth=1 ${DOMAINLIST_REPO} repo
+
+          domain_list=(
+            'accelerated-domains.china.conf'
+            'apple.china.conf'
+            'google.china.conf'
+          )
+
+          mkdir -p ${ARTIFACT_DIR}
+          for list in "${domain_list[@]}"; do
+            grep -v '^#' repo/$list | sed -e 's|^server=/\(.*\)/.*|.\1|' >> ${ARTIFACT_DIR}/cn_domains.txt
+          done
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_DIR }}
+          path: ./${{ env.ARTIFACT_DIR }}
+
+  release:
+    runs-on: ubuntu-latest
+    needs: [build]
+
+    steps:
+      - name: Initalize
+        shell: bash
+        run: |
+          git config --global core.autocrlf input
+
+      - uses: actions/checkout@master
+      - name: Checkout
+        shell: bash
+        run: |
+          git config --global user.name 'CI'
+          git config --global user.email 'zhmars@users.noreply.github.com'
+          git tag --force ${{ env.TAG }}
+          git push origin --delete ${{ env.TAG }} || true
+          git push origin HEAD --tags
+
+      - name: Download Artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ env.ARTIFACT_DIR }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: RouteDNS Custom Blocklist
+          tag_name: ${{ env.TAG }}
+          body: |
+            ## Credits
+
+            - [felixonmars/dnsmasq-china-list](https://github.com/felixonmars/dnsmasq-china-list)
+
+          draft: false
+          prerelease: false
+          # https://github.com/softprops/action-gh-release/issues/54
+          fail_on_unmatched_files: true
+          files: |
+            ./cn_domains.txt
