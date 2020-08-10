@@ -97,7 +97,7 @@ jobs:
           name: Bromite Custom Ad Block filters
           tag_name: ${{ env.TAG }}
           body: |
-            Credits
+            ## Credits
 
             - ~~[EasyList](https://easylist.to/#easylist)~~
             - [EasyList Lite](https://github.com/cjx82630/cjxlist)
