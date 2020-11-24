@@ -1,0 +1,38 @@
+diff --git a/autoload/youcompleteme.vim b/autoload/youcompleteme.vim
+index 86bf6fd..e59d368 100644
+--- a/autoload/youcompleteme.vim
++++ b/autoload/youcompleteme.vim
+@@ -1306,6 +1306,19 @@ endfunction
+ 
+ 
+ if exists( '*popup_atcursor' )
++  function! s:popup_filter(winid, key)
++    if a:key ==# "\<c-p>"
++      call win_execute(a:winid, "normal! \<c-y>")
++      return v:true
++    elseif a:key ==# "\<c-n>"
++      call win_execute(a:winid, "normal! \<c-e>")
++      return v:true
++    elseif a:key ==# 'q' || a:key ==# 'x'
++      return popup_filter_menu(a:winid, 'x')
++    endif
++    return v:false
++  endfunction
++
+   function s:Hover()
+     if !py3eval( 'ycm_state.NativeFiletypeCompletionUsable()' )
+       " Cancel the autocommand if it happens to have been set
+@@ -1372,9 +1385,12 @@ if exists( '*popup_atcursor' )
+           \     'wrap': wrap,
+           \     'padding': [ 0, 1, 0, 1 ],
+           \     'moved': 'word',
+-          \     'maxwidth': &columns,
+           \     'close': 'click',
+           \     'fixed': 0,
++          \     'maxwidth': 74,
++          \     'maxheight': 20,
++          \     'border': [],
++          \     'filter': function('s:popup_filter'),
+           \   }
+           \ )
+     call setbufvar( winbufnr( s:cursorhold_popup ),

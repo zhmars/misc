@@ -1,0 +1,26 @@
+diff --git a/third_party/ycmd/ycmd/completers/completer.py b/third_party/ycmd/ycmd/completers/completer.py
+index cd0ec70..5b0815a 100644
+--- a/third_party/ycmd/ycmd/completers/completer.py
++++ b/third_party/ycmd/ycmd/completers/completer.py
+@@ -181,6 +181,7 @@ class Completer( metaclass = abc.ABCMeta ):
+   def __init__( self, user_options ):
+     self.user_options = user_options
+     self.min_num_chars = user_options[ 'min_num_of_chars_for_completion' ]
++    self.skip_multibyte = user_options.get('skip_multibyte', False)
+     self.max_diagnostics_to_display = user_options[
+         'max_diagnostics_to_display' ]
+     self.completion_triggers = (
+@@ -273,7 +274,12 @@ class Completer( metaclass = abc.ABCMeta ):
+     query_length = ( request_data[ 'column_codepoint' ] -
+                      request_data[ 'start_codepoint' ] )
+ 
+-    return query_length >= self.min_num_chars
++    if self.skip_multibyte:
++        line_bytes = request_data[ 'line_bytes' ]
++        return (query_length >= self.min_num_chars and
++                len(line_bytes) == len(line_bytes.decode()))
++    else:
++        return query_length >= self.min_num_chars
+ 
+ 
+   # It's highly likely you DON'T want to override this function but the *Inner

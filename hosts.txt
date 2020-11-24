@@ -1,24 +1,24 @@
-# Version: 20200801
+# Version: 20201124
 
 # Github
-52.69.186.44  github.com
-52.69.186.44  www.github.com
-52.69.186.44  gist.github.com
-52.69.186.44  api.github.com
+13.234.176.102  github.com
+13.234.176.102  www.github.com
+13.234.176.102  gist.github.com
+13.234.176.102  api.github.com
 140.82.112.9  codeload.github.com
-151.101.108.133  avatars0.githubusercontent.com
-151.101.108.133  avatars1.githubusercontent.com
-151.101.108.133  avatars2.githubusercontent.com
-151.101.108.133  avatars3.githubusercontent.com
-151.101.108.133  avatars4.githubusercontent.com
-151.101.108.133  avatars5.githubusercontent.com
-151.101.108.133  avatars6.githubusercontent.com
-151.101.108.133  avatars7.githubusercontent.com
-151.101.108.133  avatars8.githubusercontent.com
-151.101.108.133  raw.githubusercontent.com
-151.101.108.133  camo.githubusercontent.com
-151.101.108.133  gist.githubusercontent.com
-151.101.108.133  cloud.githubusercontent.com
-151.101.108.133  user-images.githubusercontent.com
-151.101.108.133  repository-images.githubusercontent.com
-151.101.108.133  marketplace-screenshots.githubusercontent.com
+185.199.110.154  avatars0.githubusercontent.com
+185.199.110.154  avatars1.githubusercontent.com
+185.199.110.154  avatars2.githubusercontent.com
+185.199.110.154  avatars3.githubusercontent.com
+185.199.110.154  avatars4.githubusercontent.com
+185.199.110.154  avatars5.githubusercontent.com
+185.199.110.154  avatars6.githubusercontent.com
+185.199.110.154  avatars7.githubusercontent.com
+185.199.110.154  avatars8.githubusercontent.com
+185.199.110.154  raw.githubusercontent.com
+185.199.110.154  camo.githubusercontent.com
+185.199.110.154  cloud.githubusercontent.com
+185.199.110.154  gist.githubusercontent.com
+185.199.110.154  user-images.githubusercontent.com
+185.199.110.154  repository-images.githubusercontent.com
+185.199.110.154  marketplace-screenshots.githubusercontent.com

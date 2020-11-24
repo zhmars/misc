@@ -1,17 +1,8 @@
-From d5f64d57e01475f3fc9b8996ac19d2b2b7a7b49c Mon Sep 17 00:00:00 2001
-From: zhmars <gzhqyz@gmail.com>
-Date: Thu, 28 May 2020 22:20:47 +0800
-Subject: [PATCH] fix UnicodeDecodeError
-
----
- python/ycm/vimsupport.py | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
-
 diff --git a/python/ycm/vimsupport.py b/python/ycm/vimsupport.py
-index f25ef02..e5e4400 100644
+index 69cef18..d9933ec 100644
 --- a/python/ycm/vimsupport.py
 +++ b/python/ycm/vimsupport.py
-@@ -269,11 +269,21 @@ class DiagnosticMatch( namedtuple( 'DiagnosticMatch',
+@@ -267,11 +267,21 @@ class DiagnosticMatch( namedtuple( 'DiagnosticMatch',
  
  
  def GetDiagnosticMatchesInCurrentWindow():
@@ -38,6 +29,3 @@ index f25ef02..e5e4400 100644
  
  
  def AddDiagnosticMatch( match ):
--- 
-2.26.2
-

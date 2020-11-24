@@ -1,20 +1,8 @@
-From 269c4855e57e34dc510f5d62284044e5ded8e73e Mon Sep 17 00:00:00 2001
-From: zhmars <gzhqyz@gmail.com>
-Date: Wed, 27 May 2020 17:53:17 +0800
-Subject: [PATCH] add neosnippet support
-
----
- python/ycm/youcompleteme.py                   | 15 ++++++
- .../general/general_completer_store.py        |  5 ++
- .../general/neosnippet_completer.py           | 49 +++++++++++++++++++
- 3 files changed, 69 insertions(+)
- create mode 100644 third_party/ycmd/ycmd/completers/general/neosnippet_completer.py
-
 diff --git a/python/ycm/youcompleteme.py b/python/ycm/youcompleteme.py
-index 4938a0b..7a0de08 100644
+index 5e4cef1..da64b8f 100644
 --- a/python/ycm/youcompleteme.py
 +++ b/python/ycm/youcompleteme.py
-@@ -570,6 +570,7 @@ class YouCompleteMe:
+@@ -569,6 +569,7 @@ class YouCompleteMe:
  
      extra_data = {}
      self._AddUltiSnipsDataIfNeeded( extra_data )
@@ -22,7 +10,7 @@ index 4938a0b..7a0de08 100644
      SendEventNotificationAsync( 'BufferVisit', extra_data = extra_data )
  
  
-@@ -851,3 +852,17 @@ class YouCompleteMe:
+@@ -848,3 +849,17 @@ class YouCompleteMe:
          'description': snippet[ 'description' ] }
        for trigger, snippet in snippets.items()
      ]
@@ -123,6 +111,3 @@ index 0000000..d0b1068
 +      responses.BuildCompletionData( snip[ 'trigger' ],
 +                                     '<snip> ' + snip[ 'description' ] )
 +      for snip in raw_candidates ]
--- 
-2.26.2
-
