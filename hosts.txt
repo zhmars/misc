@@ -6,6 +6,7 @@
 13.234.176.102  gist.github.com
 13.234.176.102  api.github.com
 140.82.112.9    codeload.github.com
+185.199.110.154  avatars.githubusercontent.com
 185.199.110.154  avatars0.githubusercontent.com
 185.199.110.154  avatars1.githubusercontent.com
 185.199.110.154  avatars2.githubusercontent.com
