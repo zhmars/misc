@@ -1,11 +1,11 @@
 # Version: 20201124
 
 # Github
-13.234.176.102  github.com
-13.234.176.102  www.github.com
-13.234.176.102  gist.github.com
-13.234.176.102  api.github.com
-140.82.112.9    codeload.github.com
+15.164.81.167    github.com
+15.164.81.167    www.github.com
+15.164.81.167    gist.github.com
+15.164.81.167    api.github.com
+140.82.112.9     codeload.github.com
 185.199.110.154  avatars.githubusercontent.com
 185.199.110.154  avatars0.githubusercontent.com
 185.199.110.154  avatars1.githubusercontent.com
